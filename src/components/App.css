@@ -1,0 +1,28 @@
+body{
+    margin: 0px;
+    padding: 0px;
+    box-sizing: border-box;
+    height:100%;
+    /* width: 100%; */
+    border: 1px solid rgb(205, 45, 45);
+
+}
+
+.App{
+   
+}
+
+
+/* Login Form || Signup Form*/
+.login{
+    height: 100%;
+    background: #8080802b;
+}
+
+.login .column{
+    max-width: 450px!important;
+}
+
+a{
+    margin-left: 3px;
+}
