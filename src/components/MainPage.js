@@ -1,6 +1,6 @@
 import React from "react";
 import Firebase from "../Firebase";
-
+import Logout from "./Auth/Logout";
 import SidePanel from "./SidePanel/SidePanel";
 
 function MainPage() {

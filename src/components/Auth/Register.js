@@ -1,4 +1,4 @@
-import React, { useEffect,useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   GridRow,
   Header,
@@ -13,20 +13,23 @@ import {
   MessageHeader,
 } from "semantic-ui-react";
 import Login_img from "../Images/Login_img.jpg";
-import { createUser ,onAuthStateChanged ,addUserToFirestore} from "../../Firebase";
-import { auth} from '../../Firebase';
+import {
+  createUser,
+  onAuthStateChanged,
+  addUserToFirestore,
+} from "../../Firebase";
+import { auth } from "../../Firebase";
 import { setUser } from "../../actions/userAction";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-
 
 function Register() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-
   const [formData, setFormData] = useState({
     username: "",
+    name: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -38,39 +41,48 @@ function Register() {
     setFormData({ ...formData, [name]: value });
   };
 
-
-  const handleSubmit = async(e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const validationErrors = {};
     if (!formData.username.trim()) {
-      validationErrors.username = 'Username is required';
+      validationErrors.username = "Username is required";
     }
     if (!formData.email.trim()) {
-      validationErrors.email = 'E-mail is required';
+      validationErrors.email = "E-mail is required";
     }
     if (!formData.password.trim()) {
-      validationErrors.password = 'Password is required';
+      validationErrors.password = "Password is required";
     }
     if (formData.password !== formData.confirmPassword) {
-      validationErrors.confirmPassword = 'Password is not matched';
+      validationErrors.confirmPassword = "Password is not matched";
     }
-    
+
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
     } else {
       try {
         // Register the user using Firebase authentication
-        const userCredential = await createUser(formData.email, formData.password);
-        
+        const userCredential = await createUser(
+          formData.email,
+          formData.password,
+          formData.username,
+          formData.name,
+        );
+
         // // Store additional user information in Firestore
-        await addUserToFirestore(userCredential.user.uid, formData.username,formData.email)
-      navigate("/login");
+        // await addUserToFirestore(
+        //   userCredential.user.uid,
+        //   formData.username,
+        //   formData.name,
+        //   formData.email
+        // );
+        navigate("/login");
 
         setFormData({
-          username: '',
-          email: '',
-          password: '',
-          confirmPassword: '',
+          username: "",
+          email: "",
+          password: "",
+          confirmPassword: "",
         });
         setErrors({});
       } catch (error) {
@@ -85,7 +97,7 @@ function Register() {
   //   const unsubscribe = onAuthStateChanged(auth, (user) => {
   //     dispatch(setUser(user));
   //   });
-    
+
   //   return () => unsubscribe();
   // }, [dispatch]);
 
@@ -106,6 +118,17 @@ function Register() {
                 placeholder="username"
                 name="username"
                 value={formData.username}
+                onChange={handleChange}
+              />
+            </FormField>
+            <FormField>
+              <Input
+                icon="user"
+                size="large"
+                iconPosition="left"
+                placeholder="Full name"
+                name="name"
+                value={formData.name}
                 onChange={handleChange}
               />
             </FormField>
@@ -148,13 +171,17 @@ function Register() {
               Submit
             </Button>
           </div>
-          <div className={`ui error message${Object.keys(errors).length > 0 ? ' visible' : ''}`}>
-        <ul className="error-list">
-          {Object.values(errors).map((error, index) => (
-            <li key={index}>{error}</li>
-          ))}
-        </ul>
-      </div>
+          <div
+            className={`ui error message${
+              Object.keys(errors).length > 0 ? " visible" : ""
+            }`}
+          >
+            <ul className="error-list">
+              {Object.values(errors).map((error, index) => (
+                <li key={index}>{error}</li>
+              ))}
+            </ul>
+          </div>
         </Form>
         <Message size="small">
           Already a user?

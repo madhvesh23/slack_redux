@@ -26,3 +26,32 @@ body{
 a{
     margin-left: 3px;
 }
+
+/* side panel */
+.pusher{
+    transform: translate3d(222px,0,0)!important;
+}
+
+
+/* drop down menu */
+.ui.dropdown .menu{
+    left: -35px!important;
+}
+
+.item{
+    margin-top: 15px;
+    color: green;
+}
+
+
+/* channels */
+
+.channels{
+    width: 100%;
+    display: flex;
+    color: rgb(122, 122, 122);
+}
+
+.channels .channels-icon{
+    flex: 1;
+}
