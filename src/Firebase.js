@@ -21,14 +21,27 @@ import {
   getDocs,
   doc,
 } from "firebase/firestore";
-import { getStorage, ref, uploadString } from "firebase/storage";
+import { getStorage, ref as storageRef, uploadString } from "firebase/storage";
+import {
+  getDatabase,
+  get,
+  ref,
+  set,
+  push,
+  onValue,
+  off,
+  update,
+} from "firebase/database";
 import { setLoading } from "./actions/userAction";
+import { setChannelName } from "./actions/channelAction";
 import Spinner from "./components/Spinner";
 import { generateGravatarURL, uploadAvatarToStorage } from "./components/Avtar";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDZTh2ICntQ6RjvLpXW6DaS4hg06ynvo-0",
   authDomain: "slack-chatbot-redux.firebaseapp.com",
+  databaseURL:
+    "https://slack-chatbot-redux-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "slack-chatbot-redux",
   storageBucket: "slack-chatbot-redux.appspot.com",
   messagingSenderId: "933654760194",
@@ -39,6 +52,7 @@ const firebaseConfig = {
 const firebaseApp = initializeApp(firebaseConfig);
 const auth = getAuth(firebaseApp);
 const db = getFirestore(firebaseApp);
+const database = getDatabase(firebaseApp);
 
 const createUser = async (email, password, username, name) => {
   try {
@@ -68,6 +82,15 @@ const createUser = async (email, password, username, name) => {
   }
 };
 
+const updateStarred = async (uid, channelId, iconState) => {
+  try {
+    const userRealtimeRef = ref(database, `users/${uid}/star/${channelId}`);
+    await set(userRealtimeRef, iconState);
+  } catch (error) {
+    console.log("Error in stroing star state in database");
+  }
+};
+
 const addUserToFirestore = async (user, uid, username, name, email) => {
   try {
     // Generate Gravatar URL based on user's email
@@ -75,18 +98,100 @@ const addUserToFirestore = async (user, uid, username, name, email) => {
     // Upload avatar to Firebase Storage
     const avatarURL = await uploadAvatarToStorage(uid, gravatarURL);
     await updateProfile(user, { displayName: username });
-    const userDocRef = doc(db, "users", uid);
 
-    await setDoc(userDocRef, {
+    const userRealtimeRef = ref(database, `users/${uid}`);
+    await set(userRealtimeRef, {
       uid: uid,
       displayName: username,
       Name: name,
       avtar: avatarURL,
       email: email,
     });
-    console.log(userDocRef);
-    return userDocRef;
+
+    // using firestore
+    // const userDocRef = doc(db, "users", uid);
+    // await setDoc(userDocRef, {
+    //   uid: uid,
+    //   displayName: username,
+    //   Name: name,
+    //   avtar: avatarURL,
+    //   email: email,
+    // });
+
+    return userRealtimeRef;
   } catch (error) {
+    throw error;
+  }
+};
+
+const channelCreation = async (uid, username, email, name, details) => {
+  try {
+    const channelsRef = ref(database, 'channels');
+    const newDataObjectRef = push(channelsRef);
+    const newUid = newDataObjectRef.key;
+    // Set up the channel data
+    const channelData = {
+      id: newUid,
+      name: name,
+      details: details,
+      createdInfo: {
+        userUid: uid,
+        email: email,
+        createdBy: username,
+        timestamp: Date.now(),
+      },
+    };
+    await set(newDataObjectRef, channelData);
+    return { success: `created Channel- ${name}` };
+  } catch (error) {
+    console.error('Error adding channel to database!', error);
+    return { error: 'Error adding channel to database.' };
+  }
+};
+
+const fetchChannels = async (dispatch) => {
+  try {
+    const channelsRef = ref(database, "channels");
+    onValue(channelsRef, (snapshot) => {
+      const channelsData = [];
+      snapshot.forEach((childSnapshot) => {
+        const channel = childSnapshot.val();
+        channelsData.push(channel);
+      });
+      dispatch(setChannelName(channelsData));
+    });
+    return () => {
+      off(channelsRef);
+    };
+  } catch (error) {
+    console.log("Error fetching channels from database!", error);
+    throw { success: false, message: "Failed to fetch channels" };
+  }
+};
+
+const fetchUserRealtime = async (uid, callback) => {
+  try {
+    const userRealtimeRef = ref(database, `users/${uid}`);
+
+    // Set up a real-time listener for changes to the user data
+    const unsubscribe = onValue(userRealtimeRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const userData = snapshot.val();
+        // console.log("User data from Realtime Database:", userData);
+
+        // Call the callback function with the updated user data
+        if (callback) {
+          callback(userData);
+        }
+      } else {
+        console.log("User not found in Realtime Database");
+      }
+    });
+
+    // Return the unsubscribe function to detach the listener when needed
+    return unsubscribe;
+  } catch (error) {
+    console.error("Error fetching user data from Realtime Database:", error);
     throw error;
   }
 };
@@ -125,40 +230,52 @@ const logout = async (dispatch) => {
   }
 };
 
-export { auth, db, onAuthStateChanged, createUser, login, logout };
+const sendingMsg =async(content)=>{
+  try {
+    const messagesRef = ref(database, `messages`);
+    const newMessageRef = push(messagesRef);
+    await set(newMessageRef, {
+      content: content,
+      timestamp: Date.now(),  // You can add a timestamp if needed
+    });
+
+    return newMessageRef;
+  } catch (error) {
+    console.log("Error in storing into databse msgs")
+  }
+}
+
+export {
+  auth,
+  db,
+  onAuthStateChanged,
+  createUser,
+  login,
+  logout,
+  channelCreation,
+  updateStarred,
+  sendingMsg
+};
 function Firebase() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    console.log("Firebase component: useEffect - Mounted");
-
     const unsubscribeAuthStateChanged = onAuthStateChanged(
       auth,
       async (user) => {
         try {
-          dispatch(setLoading(true)); // Set loading to true initially
+          dispatch(setLoading(true));
           if (user) {
             const { uid, displayName, email } = user;
-            const userDocRef = doc(db, "users", uid);
-            const userDocSnapshot = await getDoc(userDocRef);
-
-            if (userDocSnapshot.exists()) {
-              const userData = userDocSnapshot.data();
-              console.log(
-                "User document exists. Additional user details:",
-                userData
-              );
-              dispatch(setUser({ ...user , ...userData}));
-              dispatch(setAuthStatus());
-
-              // Dispatch actions or set state with the additional details
-            } else {
-              console.log(
-                "User document does not exist in Firestore for uid:",
-                uid
-              );
-              dispatch(resetAuthStatus());
-            }
+            await fetchUserRealtime(uid, (userData) => {
+              if (userData) {
+                dispatch(setUser({ ...user, ...userData }));
+                dispatch(setAuthStatus());
+                fetchChannels(dispatch);
+              } else {
+                dispatch(resetAuthStatus());
+              }
+            });
           } else {
             dispatch(resetAuthStatus());
           }
@@ -166,12 +283,11 @@ function Firebase() {
           console.error("Error setting authenticated user details:", error);
         } finally {
           setTimeout(() => {
-            dispatch(setLoading(false)); // Set loading to false once authentication state is determined
-          }, 1100);
+            dispatch(setLoading(false));
+          }, 500);
         }
       }
     );
-
     return () => {
       unsubscribeAuthStateChanged();
     };

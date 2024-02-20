@@ -18,9 +18,11 @@ import {
   HeaderSubheader,
   HeaderContent,
 } from "semantic-ui-react";
-import Logout from "../Auth/Logout";
+import Messages from "../Messages/Messages";
+import MetaPanel from "../MetaPanel/MetaPanel";
 import DropDown from "./DropDown";
 import Channels from "./Channels";
+import SendMessage from "../Messages/SendMessage";
 
 const VerticalSidebar = ({ animation, direction, visible }) => (
   <Sidebar
@@ -44,22 +46,18 @@ const VerticalSidebar = ({ animation, direction, visible }) => (
       as="h3"
     >
       <Icon size="small" name="facebook messenger" />
-      <HeaderContent>Chat App</HeaderContent>
+      <HeaderContent style={{ letterSpacing: "0.8px", fontSize: "23px" }}>
+        Chat App
+      </HeaderContent>
     </Header>
 
     <MenuItem as="a">
       <DropDown />
     </MenuItem>
 
- { <MenuItem as="a"  style={{ display: 'flex', alignItems: 'center' }}>
-      <Channels/>
+    <MenuItem as="a" style={{ display: "flex", alignItems: "center" }}>
+      <Channels />
     </MenuItem>
-
-/*
-    <MenuItem as="a">
-      <Icon name="camera" />
-      Channels
-    </MenuItem> */}
   </Sidebar>
 );
 
@@ -99,10 +97,25 @@ function SidePanel() {
 
       <SidebarPusher dimmed={dimmed && visible}>
         {/* <Logout /> */}
-        <Segment basic>
+        {/* <Segment basic>
+          <Messages/>
           <Header as="h3">Application Content</Header>
           <Image src="https://react.semantic-ui.com/images/wireframe/paragraph.png" />
         </Segment>
+        <Segment basic>
+          <MetaPanel/>
+        </Segment> */}
+        <Grid divided="vertically" style={{margin:"0px 0px 0px 0px "}}>
+          <GridRow columns={5}>
+            <GridColumn style={{height:'fit-content'}} width={9}>
+              <Messages/>
+            </GridColumn>
+            <GridColumn width={4}>
+              <MetaPanel/>
+            </GridColumn>
+          </GridRow>
+        </Grid>
+        <SendMessage/>
       </SidebarPusher>
     </SidebarPushable>
   );

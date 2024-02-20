@@ -35,7 +35,7 @@ function DropDown() {
   const trigger = (
     <span>
       <Image src={avtarUrl} avatar />
-      <h5 style={{display:"inline-block",margin:'0px 0px 0px 7px'}}>
+      <h5 style={{display:"inline-block",margin:'0px 0px 0px 7px',letterSpacing:'0.8px'}}>
       {isUser?.displayName}
       </h5>
         
