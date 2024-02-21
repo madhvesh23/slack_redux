@@ -1,13 +1,11 @@
 import React from 'react'
 import { Segment } from 'semantic-ui-react'
-import { UseSelector, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 function MetaPanel() {
   const SelectedChannel = useSelector((state) => state.channel.selectedChannel);
-
-  console.log(SelectedChannel)
   return (
     <Segment>
-      MetaData
+      #  {SelectedChannel?.name}
       <Segment >
         {SelectedChannel &&  SelectedChannel.createdInfo.createdBy}
       </Segment>

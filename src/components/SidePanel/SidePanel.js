@@ -23,6 +23,7 @@ import MetaPanel from "../MetaPanel/MetaPanel";
 import DropDown from "./DropDown";
 import Channels from "./Channels";
 import SendMessage from "../Messages/SendMessage";
+import Starred from "./Starred";
 
 const VerticalSidebar = ({ animation, direction, visible }) => (
   <Sidebar
@@ -53,6 +54,10 @@ const VerticalSidebar = ({ animation, direction, visible }) => (
 
     <MenuItem as="a">
       <DropDown />
+    </MenuItem>
+
+    <MenuItem style={{marginTop:'5px'}}>
+      <Starred/>
     </MenuItem>
 
     <MenuItem as="a" style={{ display: "flex", alignItems: "center" }}>

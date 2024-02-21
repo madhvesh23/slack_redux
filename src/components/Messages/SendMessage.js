@@ -8,8 +8,13 @@ import {
   ButtonGroup,
 } from "semantic-ui-react";
 import { sendingMsg } from "../../Firebase";
+import {  useSelector } from "react-redux";
 function SendMessage() {
+  const SelectedChannel = useSelector(state => state.channel.selectedChannel)
+  const user = useSelector(state => state.user.user)
+console.log(user)
   const [formData, setFormData] = useState({ content: "" });
+
   const handleChange = (e) => {
     e.preventDefault();
     const { value, name } = e.target;
@@ -17,10 +22,12 @@ function SendMessage() {
   };
   const submitContent = async() => {
     try {
-      const result = await sendingMsg(formData.content)
+      const result = await sendingMsg(SelectedChannel.id,formData.content,user.displayName,user.uid,user.avtar)
       console.log(result)
     } catch (error) {
       console.log("Error in sending msg")
+    }finally{
+      setFormData({content:""})
     }
   };
   return (
@@ -37,7 +44,7 @@ function SendMessage() {
           icon="add"
           iconPosition="left"
           fluid
-          placeholder="Search users..."
+          placeholder="Use me for Messages!"
           onChange={handleChange}
           value={formData.content}
           name="content"
@@ -49,12 +56,14 @@ function SendMessage() {
             color="orange"
             icon
             labelPosition="left"
+            disabled={!formData.content}
           >
             <Icon name="edit" />
-            Add
-          </Button>
+            Send
+          </Button> 
+          
           <Button circular size="large" color="teal" icon labelPosition="right">
-            Next
+            Media Upload
             <Icon name="cloud upload" />
           </Button>
         </ButtonGroup>

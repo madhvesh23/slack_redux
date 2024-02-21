@@ -126,7 +126,7 @@ const addUserToFirestore = async (user, uid, username, name, email) => {
 
 const channelCreation = async (uid, username, email, name, details) => {
   try {
-    const channelsRef = ref(database, 'channels');
+    const channelsRef = ref(database, "channels");
     const newDataObjectRef = push(channelsRef);
     const newUid = newDataObjectRef.key;
     // Set up the channel data
@@ -144,8 +144,8 @@ const channelCreation = async (uid, username, email, name, details) => {
     await set(newDataObjectRef, channelData);
     return { success: `created Channel- ${name}` };
   } catch (error) {
-    console.error('Error adding channel to database!', error);
-    return { error: 'Error adding channel to database.' };
+    console.error("Error adding channel to database!", error);
+    return { error: "Error adding channel to database." };
   }
 };
 
@@ -230,20 +230,48 @@ const logout = async (dispatch) => {
   }
 };
 
-const sendingMsg =async(content)=>{
+const sendingMsg = async (channelId, content, username, userId, avtar) => {
   try {
-    const messagesRef = ref(database, `messages`);
+    const messagesRef = ref(database, `messages/${channelId}`);
     const newMessageRef = push(messagesRef);
     await set(newMessageRef, {
       content: content,
-      timestamp: Date.now(),  // You can add a timestamp if needed
+      timestamp: Date.now(), // You can add a timestamp if needed
+      sender: {
+        username: username,
+        uid: userId,
+        avtar: avtar,
+      },
     });
-
     return newMessageRef;
   } catch (error) {
-    console.log("Error in storing into databse msgs")
+    console.log("Error in storing into databse msgs");
   }
-}
+};
+const fetchingMsg = (channelId,callback) => {
+    // const channelId = "-Nr5ek8wlNANdLCNJI0P";
+    const messagesRef = ref(database, `messages/${channelId}`);
+  
+    const messagesListener = onValue(messagesRef, (snapshot) => {
+      const messagesData = snapshot.val();
+      const messagesArray = [];
+  
+      if (messagesData) {
+        Object.keys(messagesData).forEach((messageId) => {
+          const message = messagesData[messageId];
+          messagesArray.push(message);
+        });
+      }
+      // Call the provided callback with the messages
+      callback(messagesArray);
+    });
+  
+    // Return a cleanup function to remove the listener when needed
+    return () => {
+      off(messagesRef, 'value', messagesListener);
+    };
+  };
+
 
 export {
   auth,
@@ -254,7 +282,8 @@ export {
   logout,
   channelCreation,
   updateStarred,
-  sendingMsg
+  sendingMsg,
+  fetchingMsg
 };
 function Firebase() {
   const dispatch = useDispatch();
