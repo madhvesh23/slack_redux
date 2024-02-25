@@ -115,3 +115,14 @@ color: blueviolet!important;
     letter-spacing: 0.1px;
     font-family: 'Lato';
 }
+
+
+/* avtar image */
+.ui.tiny.image{
+  width: 2em!important;
+}
+
+/* metapanel */
+.meta-content p{
+  padding: 0px 5px 0px 28px!important;
+}

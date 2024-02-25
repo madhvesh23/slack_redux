@@ -39,6 +39,7 @@ function Channels() {
       uid,
       displayName,
       email,
+      user.avtar,
       channelData.channelName,
       channelData.aboutChannel
     );

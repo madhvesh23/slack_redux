@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Segment, Icon } from "semantic-ui-react";
+import { Segment, Icon, Header } from "semantic-ui-react";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { updateStarred } from "../../Firebase";
@@ -40,7 +40,6 @@ function Starred() {
         }
       }
     };
-  
     fetchData();
   }, [dispatch, channels, SelectedChannel, uid]);
   
@@ -49,9 +48,9 @@ function Starred() {
     <Segment style={{ paddingBottom: "35px" }} size="huge">
       {SelectedChannel && (
         <>
-          <p style={{ display: "inline", marginRight: "10px" }}>
-            {SelectedChannel.name}
-          </p>
+          <p style={{ display: "inline", marginRight: "5px" }}>
+           <Header style={{ display: "inline"}}> {SelectedChannel.name} </Header>
+           </p>
           <Icon
             style={{ cursor: "pointer" }}
             onClick={() => toggleIconState(SelectedChannel.id)}

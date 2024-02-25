@@ -124,7 +124,7 @@ const addUserToFirestore = async (user, uid, username, name, email) => {
   }
 };
 
-const channelCreation = async (uid, username, email, name, details) => {
+const channelCreation = async (uid, username, email,avtar,name, details) => {
   try {
     const channelsRef = ref(database, "channels");
     const newDataObjectRef = push(channelsRef);
@@ -137,6 +137,7 @@ const channelCreation = async (uid, username, email, name, details) => {
       createdInfo: {
         userUid: uid,
         email: email,
+        avtar:avtar,
         createdBy: username,
         timestamp: Date.now(),
       },
