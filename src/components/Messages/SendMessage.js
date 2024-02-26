@@ -12,7 +12,6 @@ import {  useSelector } from "react-redux";
 function SendMessage() {
   const SelectedChannel = useSelector(state => state.channel.selectedChannel)
   const user = useSelector(state => state.user.user)
-console.log(user)
   const [formData, setFormData] = useState({ content: "" });
 
   const handleChange = (e) => {

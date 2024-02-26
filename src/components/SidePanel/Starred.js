@@ -5,6 +5,8 @@ import { useSelector } from "react-redux";
 function Starred() {
   const user = useSelector((state) => state.user.user);
   const SelectedChannel = useSelector((state) => state.channel.selectedChannel);
+  const channel = useSelector((state) => state.channel.channel);
+  // console.log(channel)
   const starred = user?.star;
   const starArray = [];
 
@@ -13,12 +15,20 @@ function Starred() {
     for (let i = 0; i < keys.length; i++) {
       const starId = keys[i];
       const starType = starred[starId];
-      const isSelectedChannel =
-        SelectedChannel && SelectedChannel.id === starId;
+     if(starType==="filled"){
+      channel.forEach(cha => {
+            if(starId === cha.id){
+              starArray.push(cha)
+            }   
+      });
+      
+     }
+      // const isSelectedChannel =
+      //   SelectedChannel && SelectedChannel.id === starId;
 
-      if (starType && starType === "filled" && isSelectedChannel) {
-        starArray.push(SelectedChannel);
-      }
+      // if (starType && starType === "filled" && isSelectedChannel) {
+      //   starArray.push(SelectedChannel);
+      // }
     }
   }
 
