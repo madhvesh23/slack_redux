@@ -7,10 +7,11 @@ import { setSelectedChannel } from "../../actions/channelAction";
 function ChannelList() {
   const channels = useSelector((state) => state.channel.channel);
   const selectedChannel = useSelector((state) => state.channel.selectedChannel);
-  const disptach = useDispatch()
+  const disptach = useDispatch();
 
   const submitChannelName = async (channel) => {
-    disptach(setSelectedChannel(channel))
+    console.log(channel);
+    disptach(setSelectedChannel(channel));
   };
 
   return (
@@ -29,7 +30,18 @@ function ChannelList() {
               <ListContent className="channel-list">
                 <span
                   onClick={() => submitChannelName(channel)}
-                  style={{ color: "#a3a8ad", letterSpacing: "1.3px" }}
+                  style={{
+                    color:
+                      selectedChannel && selectedChannel.id === channel.id
+                        ? "blueviolet" // Change this to your desired active color
+                        : "#a3a8ad",
+                    letterSpacing: "1.3px",
+                    fontWeight:
+                      selectedChannel && selectedChannel.id === channel.id
+                        ? "bold"
+                        : "normal",
+                        fontSize :  selectedChannel && selectedChannel.id === channel.id ? "16px" :"inherit"
+                  }}
                 >
                   {channel.name}
                 </span>

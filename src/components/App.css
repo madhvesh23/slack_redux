@@ -65,7 +65,7 @@ color: blueviolet!important;
 }
 
 .ui.inverted.menu a.item:hover{
-  background: rgba(255, 255, 255, 0)!important;
+  background: rgba(255, 255, 255, 0.006)!important;
 }
 
 /* Pusher */

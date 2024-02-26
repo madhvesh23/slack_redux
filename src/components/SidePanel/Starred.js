@@ -1,8 +1,11 @@
 import React from "react";
 import { Icon, ListContent, List, Image, ListItem } from "semantic-ui-react";
 import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import { setSelectedChannel } from "../../actions/channelAction";
 
 function Starred() {
+  const disptach = useDispatch()
   const user = useSelector((state) => state.user.user);
   const SelectedChannel = useSelector((state) => state.channel.selectedChannel);
   const channel = useSelector((state) => state.channel.channel);
@@ -60,7 +63,9 @@ function Starred() {
                       fontSize: "14px",
                       color: "goldenrod",
                       letterSpacing: "1.3px",
+                       cursor:"pointer"
                     }}
+                    onClick={()=>disptach(setSelectedChannel(channel))}
                   >
                     # {channel.name}
                   </span>
